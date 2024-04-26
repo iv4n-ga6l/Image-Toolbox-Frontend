@@ -15,5 +15,5 @@ Image Toolbox Frontend
 ### Image Comparison
 <img src="https://storage.googleapis.com/buildship-vos7yw-europe-west1/uploaded-files/cmp.gif">
 
-### Open poses Detection on person body
+### Person's body parts or joint position Detection  
 <img src="https://storage.googleapis.com/buildship-vos7yw-europe-west1/uploaded-files/op_det.gif">

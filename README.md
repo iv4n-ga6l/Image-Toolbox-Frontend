@@ -11,3 +11,6 @@ Image Toolbox Frontend
 
 ### Text Extraction
 <img src="https://storage.googleapis.com/buildship-vos7yw-europe-west1/uploaded-files/txt_ext.gif">
+
+### Image Comparison
+<img src="https://storage.googleapis.com/buildship-vos7yw-europe-west1/uploaded-files/cmp.gif">

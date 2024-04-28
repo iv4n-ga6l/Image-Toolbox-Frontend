@@ -23,6 +23,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import PermMediaIcon from '@mui/icons-material/PermMedia';
 import PhotoLibraryTwoToneIcon from '@mui/icons-material/PhotoLibraryTwoTone';
+import GraphicEqTwoToneIcon from '@mui/icons-material/GraphicEqTwoTone';
 import AspectRatioTwoToneIcon from '@mui/icons-material/AspectRatioTwoTone';
 import FilterBAndWTwoToneIcon from '@mui/icons-material/FilterBAndWTwoTone';
 import FormatStrikethroughTwoToneIcon from '@mui/icons-material/FormatStrikethroughTwoTone';
@@ -164,7 +165,7 @@ export const Navbar = () => {
                     </Badge>
                 </IconButton>
                 <p>Notifications</p> */}
-                <PhotoLibraryTwoToneIcon fontSize='small'/>
+                <GraphicEqTwoToneIcon fontSize='small'/>
                 <Typography>Objects Detection</Typography>
             </MenuItem>
             <MenuItem onClick={() => navigate('/image-resizing')}>
@@ -246,7 +247,7 @@ export const Navbar = () => {
                         {/* <Link to="/upload-image"></Link> */}
                         <Button variant='text' color='inherit' sx={{fontSize: 12}} onClick={() => navigate('/objects-detection')}>
                             <Stack direction={'row'} spacing={1}>
-                                <PhotoLibraryTwoToneIcon sx={{fontSize: 15}} />
+                                <GraphicEqTwoToneIcon sx={{fontSize: 15}} />
                                 <Typography fontSize={12}>Objects Detection</Typography>
                             </Stack>
                         </Button>

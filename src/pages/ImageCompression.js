@@ -11,7 +11,6 @@ import {
     useTheme
 } from "@mui/material"
 
-
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 import FileDropZone from "../components/fileDropZone";

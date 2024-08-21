@@ -12,7 +12,6 @@ import {
     useTheme
 } from "@mui/material"
 
-
 import ContentPasteTwoToneIcon from '@mui/icons-material/ContentPasteTwoTone';
 
 import FileDropZone from "../components/fileDropZone";
@@ -28,7 +27,6 @@ export const TextExtract = () => {
 
     const [uploadStarting, setUploadStarting] = useState(false);
     const [textResult, setTextResult] = useState(null);
-
 
     const handleFilesSelected = (files) => {
         setSelectedFiles(files);

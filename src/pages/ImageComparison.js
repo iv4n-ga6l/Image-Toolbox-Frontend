@@ -10,7 +10,6 @@ import {
     useTheme
 } from "@mui/material"
 
-
 import FileDropZone from "../components/fileDropZone";
 
 import FileService from "../services/fileService";
@@ -67,7 +66,7 @@ export const ImageComparison = () => {
             return "There is a high probability that it is the same image or person or object";
         }
     }
-    
+
 
     return (
         <Grid container sx={{ margin: 4 }} spacing={6}>

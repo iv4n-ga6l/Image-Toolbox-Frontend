@@ -53,6 +53,7 @@ export const OpenPosesDetection = () => {
         }
     }
 
+    
 
 
     return (

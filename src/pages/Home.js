@@ -8,7 +8,6 @@ import ComparisonImg from '../assets/comparison-image.webp'
 
 
 const Home = () => {
-
     return (
         <Grid container sx={{ margin: 10 }} spacing={2}>
             <Grid item xs={10} md={3} lg={3}>

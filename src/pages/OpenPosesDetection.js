@@ -56,6 +56,7 @@ export const OpenPosesDetection = () => {
     
 
 
+
     return (
         <Grid container sx={{ margin: 4 }} spacing={6}>
             <Grid item xs={10} md={4} lg={4}>

@@ -14,7 +14,6 @@ import {
     useTheme
 } from "@mui/material"
 
-
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 import FileDropZone from "../components/fileDropZone";
@@ -31,7 +30,6 @@ export const ImageFiltering = () => {
 
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
-
 
     const handleFilesSelected = (files) => {
         setSelectedFiles(files);

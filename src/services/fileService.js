@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-//on render : https://image-toolbox-backend.onrender.com
+// Render url : https://image-toolbox-backend.onrender.com
 const BASE_URL = "http://localhost:5000"
 
 class FileService {

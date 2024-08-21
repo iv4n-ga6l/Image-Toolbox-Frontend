@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { ObjectsDetection } from './pages/ObjectsDetection';
 import { ImageResizing } from './pages/ImageResizing';
@@ -11,9 +11,8 @@ import Home from './pages/Home';
 
 
 function App() {
-
   return (
-    <div >
+    <>
       <Navbar/>
       <Routes >
         <Route path='/' element={<Home />}  />
@@ -25,7 +24,7 @@ function App() {
         <Route path='/image-comparison' element={<ImageComparison />} />
         <Route path='/open-poses-detection' element={<OpenPosesDetection />} />
       </Routes>
-    </div>
+    </>
   );
 }
 

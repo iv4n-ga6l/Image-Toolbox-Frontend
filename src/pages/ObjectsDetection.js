@@ -17,7 +17,6 @@ import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
 
 
-
 export const ObjectsDetection = () => {
     const theme = useTheme();
 

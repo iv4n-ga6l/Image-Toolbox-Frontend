@@ -31,7 +31,7 @@ const Footer = () => {
                         <Link href="/" color="inherit">Terms of Service</Link>
                     </Grid>
                     <Grid item>
-                        <Link href="https://github.com/IvanGael" color="inherit"><GitHub /></Link>
+                        <Link href="https://github.com/IvanGael" color="inherit" target='_blank'><GitHub /></Link>
                     </Grid>
                 </Grid>
             </Toolbar>

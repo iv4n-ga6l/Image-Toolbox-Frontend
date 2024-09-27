@@ -1,10 +1,38 @@
 import axios from 'axios';
 
-// Render url : https://image-toolbox-backend.onrender.com
-const BASE_URL = "http://localhost:5000"
+const BASE_URL = "http://localhost:5000";
 
 class FileService {
+    constructor() {
+        this.axios = axios.create({
+            baseURL: BASE_URL,
+            timeout: 10000, // 10 seconds timeout
+        });
+    }
 
+    async makeRequest(method, url, data = null, options = {}) {
+        try {
+            const response = await this.axios({
+                method,
+                url,
+                data,
+                ...options,
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                throw new Error(`Server error: ${error.response.status} - ${error.response.data}`);
+            } else if (error.request) {
+                // The request was made but no response was received
+                throw new Error('Network error: No response received from server');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                throw new Error(`Request error: ${error.message}`);
+            }
+        }
+    }
 
     async uploadFileForObjectsDetection(file, model) {
         const formData = new FormData();
@@ -12,21 +40,12 @@ class FileService {
 
         const path = `/detect_objects?model=${model}`;
         
-        try {
-            const response = await axios.post(`${BASE_URL}${path}`, formData, {
-                responseType: 'blob' // Set responseType to 'blob' to receive binary data
-            });
-            // Convert response data to Blob
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            // Create object URL from Blob
-            const url = URL.createObjectURL(blob);
-            return url;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        const blob = await this.makeRequest('post', path, formData, {
+            responseType: 'blob'
+        });
+
+        return URL.createObjectURL(blob);
     }
-
-
 
     async uploadFileForResizing(file, width, height) {
         const formData = new FormData();
@@ -34,20 +53,12 @@ class FileService {
 
         const path = `/resize_image?width=${width}&height=${height}`;
         
-        try {
-            const response = await axios.post(`${BASE_URL}${path}`, formData, {
-                responseType: 'blob' // Set responseType to 'blob' to receive binary data
-            });
-            // Convert response data to Blob
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            // Create object URL from Blob
-            const url = URL.createObjectURL(blob);
-            return url;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
+        const blob = await this.makeRequest('post', path, formData, {
+            responseType: 'blob'
+        });
 
+        return URL.createObjectURL(blob);
+    }
 
     async uploadFileForFiltering(file, filter) {
         const formData = new FormData();
@@ -55,38 +66,23 @@ class FileService {
 
         const path = `/apply_filter?filter=${filter}`;
         
-        try {
-            const response = await axios.post(`${BASE_URL}${path}`, formData, {
-                responseType: 'blob' // Set responseType to 'blob' to receive binary data
-            });
-            // Convert response data to Blob
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            // Create object URL from Blob
-            const url = URL.createObjectURL(blob);
-            return url;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
+        const blob = await this.makeRequest('post', path, formData, {
+            responseType: 'blob'
+        });
 
+        return URL.createObjectURL(blob);
+    }
 
     async uploadFileForTextExtract(file) {
         const formData = new FormData();
         formData.append("file", file);
         
-        try {
-            const response = await axios.post(`${BASE_URL}/extract_text`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            
-            return response.data;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        return this.makeRequest('post', '/extract_text', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     }
-
 
     async uploadFileForCompression(file, quality) {
         const formData = new FormData();
@@ -94,39 +90,24 @@ class FileService {
 
         const path = `/compress_image?quality=${quality}`;
         
-        try {
-            const response = await axios.post(`${BASE_URL}${path}`, formData, {
-                responseType: 'blob' // Set responseType to 'blob' to receive binary data
-            });
-            // Convert response data to Blob
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            // Create object URL from Blob
-            const url = URL.createObjectURL(blob);
-            return url;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
+        const blob = await this.makeRequest('post', path, formData, {
+            responseType: 'blob'
+        });
 
+        return URL.createObjectURL(blob);
+    }
 
     async uploadFileForImageComparison(file1, file2) {
         const formData = new FormData();
         formData.append("file1", file1);
         formData.append("file2", file2);
         
-        try {
-            const response = await axios.post(`${BASE_URL}/compare_images`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            
-            return response.data;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        return this.makeRequest('post', '/compare_images', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     }
-
 
     async uploadFileForObjectsCounting(file, model) {
         const formData = new FormData();
@@ -134,38 +115,23 @@ class FileService {
 
         const path = `/count_objects?model=${model}`;
         
-        try {
-            const response = await axios.post(`${BASE_URL}${path}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            
-            return response.data;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        return this.makeRequest('post', path, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     }
-
 
     async uploadFileForOpenPosesDetection(file) {
         const formData = new FormData();
         formData.append("file", file);
         
-        try {
-            const response = await axios.post(`${BASE_URL}/detect_open_poses`, formData, {
-                responseType: 'blob' // Set responseType to 'blob' to receive binary data
-            });
-            // Convert response data to Blob
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            // Create object URL from Blob
-            const url = URL.createObjectURL(blob);
-            return url;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
+        const blob = await this.makeRequest('post', '/detect_open_poses', formData, {
+            responseType: 'blob'
+        });
 
+        return URL.createObjectURL(blob);
+    }
 }
 
 export default FileService;

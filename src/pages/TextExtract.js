@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
     Stack,
     Grid,
@@ -10,74 +10,66 @@ import {
     Alert,
     Snackbar,
     useTheme
-} from "@mui/material"
-
+} from "@mui/material";
 import ContentPasteTwoToneIcon from '@mui/icons-material/ContentPasteTwoTone';
-
 import FileDropZone from "../components/fileDropZone";
-
 import FileService from "../services/fileService";
-
 import NoResultImg from '../assets/no-result3.png';
+import AlertDialog from "../components/AlertDialog";
 
 export const TextExtract = () => {
     const theme = useTheme();
-
-    const fileService = new FileService();
+    // use of useMemo to ensure fileService is only created once
+    const fileService = useMemo(() => new FileService(), []);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
-
     const [uploadStarting, setUploadStarting] = useState(false);
     const [textResult, setTextResult] = useState(null);
-
-    const handleFilesSelected = (files) => {
-        setSelectedFiles(files);
-    };
-
-
-    const handleUpload = async () => {
-        if (selectedFiles.length === 0) {
-            alert('You must drop or pick an image');
-        } else {
-            setTextResult(null);
-            setUploadStarting(true);
-            fileService.uploadFileForTextExtract(selectedFiles[0])
-                .then((result) => {
-                    setUploadStarting(false);
-                    setSelectedFiles([]);
-                    setTextResult(result.text);
-                }).catch((error) => {
-                    console.log(error);
-                    setUploadStarting(false);
-                });
-        }
-    }
-
-
+    const [error, setError] = useState(null);
     const [showSnackbar, setShowSnackbar] = useState(false);
 
-    const copyToClipboard = () => {
-        // Create a temporary textarea element
-        var textarea = document.createElement("textarea");
+    const handleFilesSelected = useCallback((files) => {
+        setSelectedFiles(files);
+        setError(null);
+    }, []);
 
-        // Set the text content to the text to be copied
-        textarea.value = textResult;
+    const handleUpload = useCallback(async () => {
+        if (selectedFiles.length === 0) {
+            setError('Please select an image to extract text from.');
+            return;
+        }
 
-        // Append the textarea to the DOM
-        document.body.appendChild(textarea);
+        setTextResult(null);
+        setUploadStarting(true);
+        setError(null);
 
-        // Select the text in the textarea
-        textarea.select();
+        try {
+            const result = await fileService.uploadFileForTextExtract(selectedFiles[0]);
+            setTextResult(result.text);
+            setSelectedFiles([]);
+        } catch (error) {
+            console.error('Error during text extraction:', error);
+            setError(error.message || 'An error occurred during text extraction. Please try again.');
+        } finally {
+            setUploadStarting(false);
+        }
+    }, [selectedFiles, fileService]);
 
-        // Execute the copy command
-        document.execCommand("copy");
+    const copyToClipboard = useCallback(() => {
+        if (!textResult) return;
 
-        // Remove the textarea from the DOM
-        document.body.removeChild(textarea);
+        navigator.clipboard.writeText(textResult)
+            .then(() => setShowSnackbar(true))
+            .catch((err) => setError('Failed to copy text: ' + err.message));
+    }, [textResult]);
 
-        setShowSnackbar(true);
-    }
+    const handleCloseError = useCallback(() => {
+        setError(null);
+    }, []);
 
+    const handleCloseSnackbar = useCallback(() => {
+        setShowSnackbar(false);
+    }, []);
 
     return (
         <Grid container sx={{ marginBottom: 30, mx: 4, marginTop: 4 }} spacing={6}>
@@ -85,15 +77,17 @@ export const TextExtract = () => {
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
-                    <Button variant="contained" onClick={handleUpload} disabled={uploadStarting}>
-                        {
-                            uploadStarting &&
-                            <CircularProgress size={24} color="inherit" />
-                        }
-                        {
-                            uploadStarting === true ? "Processing..." : "Send"
-                        }
-
+                    <Button 
+                        variant="contained" 
+                        onClick={handleUpload} 
+                        disabled={uploadStarting || selectedFiles.length === 0}
+                    >
+                        {uploadStarting ? (
+                            <>
+                                <CircularProgress size={24} color="inherit" sx={{ marginRight: 1 }} />
+                                Processing...
+                            </>
+                        ) : "Send"}
                     </Button>
                 </Stack>
             </Grid>
@@ -101,44 +95,33 @@ export const TextExtract = () => {
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
-                        {
-                            textResult != null &&
+                        {textResult ? (
                             <Typography>{textResult}</Typography>
-                        }
-
-                        {
-                            uploadStarting === true ?
-                                <Skeleton variant="rectangular" width={410} height={200} /> :
-                                (
-                                    textResult == null &&
-                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                        <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-                                    </div>
-                                )
-                        }
-
+                        ) : uploadStarting ? (
+                            <Skeleton variant="rectangular" width="100%" height={200} />
+                        ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} alt="No Result" />
+                            </Box>
+                        )}
                     </Box>
-                    {
-                        textResult != null &&
+                    {textResult && (
                         <Button size="small" onClick={copyToClipboard}>
-                            <ContentPasteTwoToneIcon />
+                            <ContentPasteTwoToneIcon sx={{ marginRight: 1 }} />
                             Copy
                         </Button>
-                    }
+                    )}
                 </Stack>
             </Grid>
-            {
-                showSnackbar === true &&
-                <Snackbar 
-                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+            <AlertDialog open={!!error} handleClose={handleCloseError} desc={error || ''} />
+            <Snackbar 
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={showSnackbar}
-                onClose={() => setShowSnackbar(false)}
+                onClose={handleCloseSnackbar}
                 autoHideDuration={2000}
-                >
-                    <Alert severity="info">The text has been copied to the clipboard.</Alert>
-                </Snackbar>
-            }
+            >
+                <Alert severity="info">The text has been copied to the clipboard.</Alert>
+            </Snackbar>
         </Grid>
-    )
-
-}
+    );
+};

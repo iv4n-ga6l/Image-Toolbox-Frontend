@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
     Stack,
     Grid,
@@ -12,50 +12,64 @@ import {
     Select,
     MenuItem,
     useTheme
-} from "@mui/material"
-
+} from "@mui/material";
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
-
 import FileDropZone from "../components/fileDropZone";
-
 import FileService from "../services/fileService";
-
 import NoResultImg from '../assets/no-result3.png';
+import AlertDialog from "../components/AlertDialog";
 
 export const ImageFiltering = () => {
     const theme = useTheme();
-
     const fileService = new FileService();
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filter, setFilter] = useState('blur');
-
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
+    const [error, setError] = useState(null);
 
-    const handleFilesSelected = (files) => {
+    const handleFilesSelected = useCallback((files) => {
         setSelectedFiles(files);
-    };
+        setError(null);
+    }, []);
 
+    const handleFilterChange = useCallback((event) => {
+        setFilter(event.target.value);
+        setError(null);
+    }, []);
 
-    const handleUpload = async () => {
+    const handleUpload = useCallback(async () => {
         if (selectedFiles.length === 0) {
-            alert('You must drop or pick an image');
-        } else {
-            setImageResult(null);
-            setUploadStarting(true);
-            fileService.uploadFileForFiltering(selectedFiles[0], filter)
-                .then((result) => {
-                    setUploadStarting(false);
-                    setSelectedFiles([]);
-                    setImageResult(result);
-                }).catch((error) => {
-                    console.log(error);
-                    setUploadStarting(false);
-                });
+            setError('Please select an image to filter.');
+            return;
         }
-    }
 
+        setImageResult(null);
+        setUploadStarting(true);
+        setError(null);
+
+        try {
+            const result = await fileService.uploadFileForFiltering(selectedFiles[0], filter);
+            setImageResult(result);
+            setSelectedFiles([]);
+        } catch (error) {
+            console.error('Error during image filtering:', error);
+            setError(error.message || 'An error occurred during image filtering. Please try again.');
+        } finally {
+            setUploadStarting(false);
+        }
+    }, [selectedFiles, filter, fileService]);
+
+    const handleCloseError = useCallback(() => {
+        setError(null);
+    }, []);
+
+    const filters = [
+        { value: 'blur', label: 'Blur' },
+        { value: 'sharpen', label: 'Sharpen' },
+        { value: 'grayscale', label: 'Grayscale' },
+    ];
 
     return (
         <Grid container sx={{ marginBottom: 30, mx: 4, marginTop: 4 }} spacing={6}>
@@ -64,28 +78,30 @@ export const ImageFiltering = () => {
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
                     <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Filter</InputLabel>
+                        <InputLabel id="filter-select-label">Filter</InputLabel>
                         <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
+                            labelId="filter-select-label"
+                            id="filter-select"
                             value={filter}
                             label="Filter"
-                            onChange={(e) => setFilter(e.target.value)}
+                            onChange={handleFilterChange}
                         >
-                            <MenuItem value={'blur'}>Blur</MenuItem>
-                            <MenuItem value={'sharpen'}>Sharpen</MenuItem>
-                            <MenuItem value={'grayscale'}>Grayscale</MenuItem>
+                            {filters.map((f) => (
+                                <MenuItem key={f.value} value={f.value}>{f.label}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
-                    <Button variant="contained" onClick={handleUpload} disabled={uploadStarting}>
-                        {
-                            uploadStarting &&
-                            <CircularProgress size={24} color="inherit" />
-                        }
-                        {
-                            uploadStarting === true ? "Processing..." : "Send"
-                        }
-
+                    <Button 
+                        variant="contained" 
+                        onClick={handleUpload} 
+                        disabled={uploadStarting || selectedFiles.length === 0}
+                    >
+                        {uploadStarting ? (
+                            <>
+                                <CircularProgress size={24} color="inherit" sx={{ marginRight: 1 }} />
+                                Processing...
+                            </>
+                        ) : "Send"}
                     </Button>
                 </Stack>
             </Grid>
@@ -93,37 +109,29 @@ export const ImageFiltering = () => {
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
-                        {
-                            imageResult !== null &&
+                        {imageResult ? (
                             <img
                                 src={imageResult}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                alt="File Content"
+                                alt="Filtered Image"
                             />
-                        }
-
-                        {
-                            uploadStarting === true ?
-                                <Skeleton variant="rectangular" width={410} height={200} /> :
-                                (
-                                    imageResult == null &&
-                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                        <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-                                    </div>
-                                )
-                        }
-
+                        ) : uploadStarting ? (
+                            <Skeleton variant="rectangular" width="100%" height={200} />
+                        ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} alt="No Result" />
+                            </Box>
+                        )}
                     </Box>
-                    {
-                        imageResult !== null &&
+                    {imageResult && (
                         <Button size="small" download href={imageResult}>
-                            <DownloadForOfflineIcon />
+                            <DownloadForOfflineIcon sx={{ marginRight: 1 }} />
                             Download
                         </Button>
-                    }
+                    )}
                 </Stack>
             </Grid>
+            <AlertDialog open={!!error} handleClose={handleCloseError} desc={error || ''} />
         </Grid>
-    )
-
-}
+    );
+};

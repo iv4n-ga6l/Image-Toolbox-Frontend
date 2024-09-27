@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
     Stack,
     Grid,
@@ -12,67 +12,71 @@ import {
     Select,
     MenuItem,
     useTheme
-} from "@mui/material"
-
+} from "@mui/material";
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
-
 import FileDropZone from "../components/fileDropZone";
-
 import FileService from "../services/fileService";
-
 import NoResultImg from '../assets/no-result3.png';
-
+import AlertDialog from "../components/AlertDialog";
 
 export const ObjectsDetection = () => {
     const theme = useTheme();
-
     const fileService = new FileService();
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [model, setModel] = useState('yolov3');
-
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
     const [countingResult, setCountingResult] = useState(null);
+    const [error, setError] = useState(null);
 
-
-    const handleFilesSelected = (files) => {
+    const handleFilesSelected = useCallback((files) => {
         setSelectedFiles(files);
-    };
+        setError(null); // Clear any previous errors when new files are selected
+    }, []);
 
+    const handleClose = useCallback(() => {
+        setError(null);
+    }, []);
 
-    const handleUpload = async () => {
-        if (selectedFiles.length !== 0) {
-            setImageResult(null);
-            setUploadStarting(true);
-            fileService.uploadFileForObjectsDetection(selectedFiles[0], model)
-                .then((imageResult) => {
-                    fileService.uploadFileForObjectsCounting(selectedFiles[0], model)
-                        .then((countingResult) => {
-                            setUploadStarting(false);
-                            setSelectedFiles([]);
-                            setImageResult(imageResult);
-                            setCountingResult(countingResult);
-                        }).catch((error) => {
-                            console.log(error);
-                            setUploadStarting(false);
-                        });
-                }).catch((error) => {
-                    console.log(error);
-                    setUploadStarting(false);
-                });
-        } else {
-            alert('You must drop or pick an image');
+    const handleUpload = useCallback(async () => {
+        if (selectedFiles.length === 0) {
+            setError('Please select an image to upload.');
+            return;
         }
-    }
 
-    const displayCountingResult = () => {
+        setImageResult(null);
+        setCountingResult(null);
+        setUploadStarting(true);
+        setError(null);
+
+        try {
+            const imageResult = await fileService.uploadFileForObjectsDetection(selectedFiles[0], model);
+            const countingResult = await fileService.uploadFileForObjectsCounting(selectedFiles[0], model);
+            
+            setImageResult(imageResult);
+            setCountingResult(countingResult);
+            setSelectedFiles([]);
+        } catch (error) {
+            console.error('Error during object detection:', error);
+            setError(error.message || 'An error occurred during object detection. Please try again.');
+        } finally {
+            setUploadStarting(false);
+        }
+    }, [selectedFiles, model, fileService]);
+
+    const displayCountingResult = useCallback(() => {
+        if (!countingResult) return null;
         const keys = Object.keys(countingResult);
-        // const values = keys.map(elt => countingResult[elt]);
-        return <Stack direction={'row'}>{keys.length} object(s) detected : <Typography sx={{marginLeft: 1}} color={'mediumslateblue'} fontWeight={'bold'}>{keys.join(', ')}</Typography></Stack>
-        // return `${keys.length} object(s) detected : ${keys.join(', ')}`;
-    };
-    
+        return (
+            <Stack direction={'row'}>
+                {keys.length} object(s) detected : 
+                <Typography sx={{marginLeft: 1}} color={'mediumslateblue'} fontWeight={'bold'}>
+                    {keys.join(', ')}
+                </Typography>
+            </Stack>
+        );
+    }, [countingResult]);
 
     return (
         <Grid container sx={{ marginBottom: 30, mx: 4, marginTop: 4 }} spacing={6}>
@@ -81,30 +85,30 @@ export const ObjectsDetection = () => {
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
                     <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Model</InputLabel>
+                        <InputLabel id="model-select-label">Model</InputLabel>
                         <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
+                            labelId="model-select-label"
+                            id="model-select"
                             value={model}
                             label="Model"
                             onChange={(e) => setModel(e.target.value)}
                         >
-                            <MenuItem value={'yolov3'}>Yolov3</MenuItem>
-                            <MenuItem value={'yolov5'}>Yolov5</MenuItem>
-                            <MenuItem value={'yolov7'}>Yolov7</MenuItem>
-                            <MenuItem value={'yolov8'}>Yolov8</MenuItem>
-                            <MenuItem value={'yolov10'}>Yolov10</MenuItem>
+                            {['yolov3', 'yolov5', 'yolov7', 'yolov8', 'yolov10'].map((modelName) => (
+                                <MenuItem key={modelName} value={modelName}>{modelName}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
-                    <Button variant="contained" onClick={handleUpload} disabled={uploadStarting}>
-                        {
-                            uploadStarting &&
-                            <CircularProgress size={24} color="inherit" />
-                        }
-                        {
-                            uploadStarting === true ? "Processing..." : "Send"
-                        }
-
+                    <Button 
+                        variant="contained" 
+                        onClick={handleUpload} 
+                        disabled={uploadStarting || selectedFiles.length === 0}
+                    >
+                        {uploadStarting ? (
+                            <>
+                                <CircularProgress size={24} color="inherit" sx={{ marginRight: 1 }} />
+                                Processing...
+                            </>
+                        ) : "Send"}
                     </Button>
                 </Stack>
             </Grid>
@@ -112,41 +116,32 @@ export const ObjectsDetection = () => {
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
-                        {
-                            imageResult !== null &&
+                        {imageResult ? (
                             <>
-                            <img
-                                src={imageResult}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                alt="File Content"
-                            />
-                            <Typography>
+                                <img
+                                    src={imageResult}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    alt="Processed Image"
+                                />
                                 {displayCountingResult()}
-                            </Typography>
                             </>
-                        }
-
-                        {
-                            uploadStarting === true ?
-                                <Skeleton variant="rectangular" width={510} height={200} /> :
-                                (
-                                    imageResult == null &&
-                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                        <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-                                    </div>
-                                )
-                        }
-
+                        ) : uploadStarting ? (
+                            <Skeleton variant="rectangular" width="100%" height={200} />
+                        ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} alt="No Result" />
+                            </Box>
+                        )}
                     </Box>
-                    {
-                        imageResult !== null &&
+                    {imageResult && (
                         <Button size="small" download href={imageResult}>
-                            <DownloadForOfflineIcon />
+                            <DownloadForOfflineIcon sx={{ marginRight: 1 }} />
                             Download
                         </Button>
-                    }
+                    )}
+                    {error && <AlertDialog open={!!error} handleClose={handleClose} desc={error} />}
                 </Stack>
             </Grid>
         </Grid>
-    )
-}
+    );
+};

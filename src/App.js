@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import Footer from './components/Footer';
 import { ObjectsDetection } from './pages/ObjectsDetection';
 import { ImageResizing } from './pages/ImageResizing';
 import { ImageFiltering } from './pages/ImageFiltering';
@@ -24,6 +25,9 @@ function App() {
         <Route path='/image-comparison' element={<ImageComparison />} />
         <Route path='/open-poses-detection' element={<OpenPosesDetection />} />
       </Routes>
+      <div style={{marginTop: '50px'}}>
+      <Footer />
+      </div>
     </>
   );
 }

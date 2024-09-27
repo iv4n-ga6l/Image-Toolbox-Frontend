@@ -7,6 +7,10 @@ import {
     Button,
     CircularProgress,
     Skeleton,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
     useTheme
 } from "@mui/material"
 
@@ -16,6 +20,8 @@ import FileDropZone from "../components/fileDropZone";
 
 import FileService from "../services/fileService";
 
+import NoResultImg from '../assets/no-result3.png';
+
 
 export const ObjectsDetection = () => {
     const theme = useTheme();
@@ -23,6 +29,7 @@ export const ObjectsDetection = () => {
     const fileService = new FileService();
 
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [model, setModel] = useState('yolov3');
 
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
@@ -38,9 +45,9 @@ export const ObjectsDetection = () => {
         if (selectedFiles.length !== 0) {
             setImageResult(null);
             setUploadStarting(true);
-            fileService.uploadFileForObjectsDetection(selectedFiles[0])
+            fileService.uploadFileForObjectsDetection(selectedFiles[0], model)
                 .then((imageResult) => {
-                    fileService.uploadFileForObjectsCounting(selectedFiles[0])
+                    fileService.uploadFileForObjectsCounting(selectedFiles[0], model)
                         .then((countingResult) => {
                             setUploadStarting(false);
                             setSelectedFiles([]);
@@ -68,11 +75,27 @@ export const ObjectsDetection = () => {
     
 
     return (
-        <Grid container sx={{ margin: 4 }} spacing={6}>
-            <Grid item xs={10} md={4} lg={4}>
+        <Grid container sx={{ marginBottom: 30, mx: 4, marginTop: 4 }} spacing={6}>
+            <Grid item xs={12} md={4} lg={4}>
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Model</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={model}
+                            label="Model"
+                            onChange={(e) => setModel(e.target.value)}
+                        >
+                            <MenuItem value={'yolov3'}>Yolov3</MenuItem>
+                            <MenuItem value={'yolov5'}>Yolov5</MenuItem>
+                            <MenuItem value={'yolov7'}>Yolov7</MenuItem>
+                            <MenuItem value={'yolov8'}>Yolov8</MenuItem>
+                            <MenuItem value={'yolov10'}>Yolov10</MenuItem>
+                        </Select>
+                    </FormControl>
                     <Button variant="contained" onClick={handleUpload} disabled={uploadStarting}>
                         {
                             uploadStarting &&
@@ -85,7 +108,7 @@ export const ObjectsDetection = () => {
                     </Button>
                 </Stack>
             </Grid>
-            <Grid item xs={10} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
@@ -106,7 +129,12 @@ export const ObjectsDetection = () => {
                         {
                             uploadStarting === true ?
                                 <Skeleton variant="rectangular" width={510} height={200} /> :
-                                <Typography fontSize={12}>...</Typography>
+                                (
+                                    imageResult == null &&
+                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                        <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
+                                    </div>
+                                )
                         }
 
                     </Box>

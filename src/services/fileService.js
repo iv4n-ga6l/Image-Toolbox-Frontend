@@ -6,12 +6,14 @@ const BASE_URL = "http://localhost:5000"
 class FileService {
 
 
-    async uploadFileForObjectsDetection(file) {
+    async uploadFileForObjectsDetection(file, model) {
         const formData = new FormData();
         formData.append("file", file);
+
+        const path = `/detect_objects?model=${model}`;
         
         try {
-            const response = await axios.post(`${BASE_URL}/detect_objects`, formData, {
+            const response = await axios.post(`${BASE_URL}${path}`, formData, {
                 responseType: 'blob' // Set responseType to 'blob' to receive binary data
             });
             // Convert response data to Blob
@@ -126,12 +128,14 @@ class FileService {
     }
 
 
-    async uploadFileForObjectsCounting(file) {
+    async uploadFileForObjectsCounting(file, model) {
         const formData = new FormData();
         formData.append("file", file);
+
+        const path = `/count_objects?model=${model}`;
         
         try {
-            const response = await axios.post(`${BASE_URL}/count_objects`, formData, {
+            const response = await axios.post(`${BASE_URL}${path}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

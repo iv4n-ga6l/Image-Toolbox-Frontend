@@ -2,13 +2,15 @@ import React, { useState, useRef } from 'react';
 import {
     Typography,
     SvgIcon,
-    Stack
+    Stack,
+    useTheme
 } from '@mui/material';
 
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 
 const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
+    const theme = useTheme()
 
     const [droppedFiles, setDroppedFiles] = useState([]);
     const fileInputRef = useRef(null);
@@ -112,7 +114,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
             />
             or
             <button
-                style={{ padding: 7, backgroundColor: 'mediumslateblue', color: 'white', borderStyle: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                style={{ padding: 7, backgroundColor: theme.palette.secondary.main, color: 'white', borderStyle: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 onClick={() => fileInputRef.current.click()}>
                 <Stack direction={'row'} display={'flex'} alignItems={'center'} spacing={0.5}>
                     <SvgIcon sx={{ fontSize: 12 }}><UploadFileIcon style={{fontWeight: 'bold'}} /></SvgIcon>

@@ -11,8 +11,8 @@ import {
     useTheme
 } from "@mui/material";
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
-import FileDropZone from "../components/fileDropZone";
-import FileService from "../services/fileService";
+import FileDropZone from "../components/FileDropZone";
+import FileService from "../services/FileService";
 import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 

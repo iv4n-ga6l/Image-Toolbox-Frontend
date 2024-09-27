@@ -12,8 +12,8 @@ import {
     useTheme
 } from "@mui/material";
 import ContentPasteTwoToneIcon from '@mui/icons-material/ContentPasteTwoTone';
-import FileDropZone from "../components/fileDropZone";
-import FileService from "../services/fileService";
+import FileDropZone from "../components/FileDropZone";
+import FileService from "../services/FileService";
 import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 

@@ -14,7 +14,7 @@ import {
 import ContentPasteTwoToneIcon from '@mui/icons-material/ContentPasteTwoTone';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const TextExtract = () => {
@@ -46,9 +46,7 @@ export const TextExtract = () => {
         try {
             const result = await fileService.uploadFileForTextExtract(selectedFiles[0]);
             setTextResult(result.text);
-            setSelectedFiles([]);
         } catch (error) {
-            console.error('Error during text extraction:', error);
             setError(error.message || 'An error occurred during text extraction. Please try again.');
         } finally {
             setUploadStarting(false);

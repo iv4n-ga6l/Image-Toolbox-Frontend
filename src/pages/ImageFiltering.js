@@ -16,7 +16,7 @@ import {
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const ImageFiltering = () => {
@@ -52,9 +52,7 @@ export const ImageFiltering = () => {
         try {
             const result = await fileService.uploadFileForFiltering(selectedFiles[0], filter);
             setImageResult(result);
-            setSelectedFiles([]);
         } catch (error) {
-            console.error('Error during image filtering:', error);
             setError(error.message || 'An error occurred during image filtering. Please try again.');
         } finally {
             setUploadStarting(false);
@@ -91,9 +89,9 @@ export const ImageFiltering = () => {
                             ))}
                         </Select>
                     </FormControl>
-                    <Button 
-                        variant="contained" 
-                        onClick={handleUpload} 
+                    <Button
+                        variant="contained"
+                        onClick={handleUpload}
                         disabled={uploadStarting || selectedFiles.length === 0}
                     >
                         {uploadStarting ? (
@@ -110,11 +108,13 @@ export const ImageFiltering = () => {
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
                         {imageResult ? (
-                            <img
-                                src={imageResult}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                alt="Filtered Image"
-                            />
+                            <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                <img
+                                    src={imageResult}
+                                    style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                    alt="Filtered Image"
+                                />
+                            </Stack>
                         ) : uploadStarting ? (
                             <Skeleton variant="rectangular" width="100%" height={200} />
                         ) : (

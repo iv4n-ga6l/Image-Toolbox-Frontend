@@ -8,6 +8,7 @@ import {
 
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
+import FootImg from '../assets/foot.png';
 
 const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
     const theme = useTheme()
@@ -98,6 +99,10 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
                     padding: 10,
                     border: '2px dotted #aaa',
                     borderRadius: 3,
+                    backgroundImage: `url(${FootImg})`,
+                    height: '16vh',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat'
                     // cursor: 'pointer',
                 }
             }

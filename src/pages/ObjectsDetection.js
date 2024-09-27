@@ -16,7 +16,7 @@ import {
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const ObjectsDetection = () => {
@@ -53,12 +53,10 @@ export const ObjectsDetection = () => {
         try {
             const imageResult = await fileService.uploadFileForObjectsDetection(selectedFiles[0], model);
             const countingResult = await fileService.uploadFileForObjectsCounting(selectedFiles[0], model);
-            
+
             setImageResult(imageResult);
             setCountingResult(countingResult);
-            setSelectedFiles([]);
         } catch (error) {
-            console.error('Error during object detection:', error);
             setError(error.message || 'An error occurred during object detection. Please try again.');
         } finally {
             setUploadStarting(false);
@@ -70,8 +68,8 @@ export const ObjectsDetection = () => {
         const keys = Object.keys(countingResult);
         return (
             <Stack direction={'row'}>
-                {keys.length} object(s) detected : 
-                <Typography sx={{marginLeft: 1}} color={'mediumslateblue'} fontWeight={'bold'}>
+                {keys.length} object(s) detected :
+                <Typography sx={{ marginLeft: 1 }} color={'mediumslateblue'} fontWeight={'bold'}>
                     {keys.join(', ')}
                 </Typography>
             </Stack>
@@ -98,9 +96,9 @@ export const ObjectsDetection = () => {
                             ))}
                         </Select>
                     </FormControl>
-                    <Button 
-                        variant="contained" 
-                        onClick={handleUpload} 
+                    <Button
+                        variant="contained"
+                        onClick={handleUpload}
                         disabled={uploadStarting || selectedFiles.length === 0}
                     >
                         {uploadStarting ? (
@@ -118,12 +116,14 @@ export const ObjectsDetection = () => {
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
                         {imageResult ? (
                             <>
-                                <img
-                                    src={imageResult}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    alt="Processed Image"
-                                />
-                                {displayCountingResult()}
+                                <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                    <img
+                                        src={imageResult}
+                                        style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                        alt="Processed Image"
+                                    />
+                                    {displayCountingResult()}
+                                </Stack>
                             </>
                         ) : uploadStarting ? (
                             <Skeleton variant="rectangular" width="100%" height={200} />

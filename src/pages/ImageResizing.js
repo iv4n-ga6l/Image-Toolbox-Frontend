@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
     Stack,
     Grid,
@@ -13,12 +13,13 @@ import {
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const ImageResizing = () => {
     const theme = useTheme();
-    const fileService = new FileService();
+    // use of useMemo to ensure fileService is only created once
+    const fileService = useMemo(() => new FileService(), []);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [width, setWidth] = useState('');
@@ -68,9 +69,7 @@ export const ImageResizing = () => {
         try {
             const result = await fileService.uploadFileForResizing(selectedFiles[0], parseInt(width), parseInt(height));
             setImageResult(result);
-            setSelectedFiles([]);
         } catch (error) {
-            console.error('Error during image resizing:', error);
             setError(error.message || 'An error occurred during image resizing. Please try again.');
         } finally {
             setUploadStarting(false);
@@ -88,20 +87,20 @@ export const ImageResizing = () => {
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
                     <Stack direction={'row'} spacing={2}>
-                        <TextField 
-                            label="Width" 
-                            variant="outlined" 
-                            fullWidth 
+                        <TextField
+                            label="Width"
+                            variant="outlined"
+                            fullWidth
                             type="number"
                             value={width}
                             onChange={handleWidthChange}
                             error={!width && error}
                             helperText={!width && error ? "Width is required" : ""}
                         />
-                        <TextField 
-                            label="Height" 
-                            variant="outlined" 
-                            fullWidth 
+                        <TextField
+                            label="Height"
+                            variant="outlined"
+                            fullWidth
                             type="number"
                             value={height}
                             onChange={handleHeightChange}
@@ -109,9 +108,9 @@ export const ImageResizing = () => {
                             helperText={!height && error ? "Height is required" : ""}
                         />
                     </Stack>
-                    <Button 
-                        variant="contained" 
-                        onClick={handleUpload} 
+                    <Button
+                        variant="contained"
+                        onClick={handleUpload}
                         disabled={uploadStarting || selectedFiles.length === 0 || !width || !height}
                     >
                         {uploadStarting ? (
@@ -128,11 +127,13 @@ export const ImageResizing = () => {
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
                         {imageResult ? (
-                            <img
-                                src={imageResult}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                alt="Resized Image"
-                            />
+                            <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                <img
+                                    src={imageResult}
+                                    style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                    alt="Resized Image"
+                                />
+                            </Stack>
                         ) : uploadStarting ? (
                             <Skeleton variant="rectangular" width="100%" height={200} />
                         ) : (

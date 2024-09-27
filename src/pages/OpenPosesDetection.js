@@ -13,7 +13,7 @@ import {
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const OpenPosesDetection = () => {
@@ -24,8 +24,8 @@ export const OpenPosesDetection = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
-    const [errorOpen, setErrorOpen] = useState(false); 
-    const [errorMessage, setErrorMessage] = useState(null); 
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
 
     const handleFilesSelected = useCallback((files) => {
         setSelectedFiles(files);
@@ -41,14 +41,14 @@ export const OpenPosesDetection = () => {
                 const imageResult = await fileService.uploadFileForOpenPosesDetection(selectedFiles[0]);
                 setImageResult(imageResult);
             } catch (error) {
-                setErrorMessage(error.message || "An unexpected error occurred."); 
-                setErrorOpen(true); 
+                setErrorMessage(error.message || "An unexpected error occurred.");
+                setErrorOpen(true);
             } finally {
                 setUploadStarting(false);
             }
         } else {
             setErrorMessage("You must drop or pick an image.");
-            setErrorOpen(true); 
+            setErrorOpen(true);
         }
     }, [selectedFiles, fileService]);
 
@@ -74,11 +74,13 @@ export const OpenPosesDetection = () => {
                         <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                         <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
                             {imageResult !== null ? (
-                                <img
-                                    src={imageResult}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    alt="File Content"
-                                />
+                                <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                    <img
+                                        src={imageResult}
+                                        style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                        alt="File Content"
+                                    />
+                                </Stack>
                             ) : (
                                 uploadStarting ? (
                                     <Skeleton variant="rectangular" width={510} height={200} />

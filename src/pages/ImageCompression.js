@@ -13,7 +13,7 @@ import {
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/fileDropZone";
 import FileService from "../services/fileService";
-import NoResultImg from '../assets/no-result3.png';
+import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const ImageCompression = () => {
@@ -30,7 +30,7 @@ export const ImageCompression = () => {
 
     const handleFilesSelected = useCallback((files) => {
         setSelectedFiles(files);
-        setAlertMessage(null); 
+        setAlertMessage(null);
         setAlertOpen(null);
     }, []);
 
@@ -52,7 +52,6 @@ export const ImageCompression = () => {
             try {
                 const result = await fileService.uploadFileForCompression(selectedFiles[0], quality);
                 setUploadStarting(false);
-                setSelectedFiles([]);
                 setImageResult(result);
             } catch (error) {
                 showAlert(error.message || "An unexpected error occurred.");
@@ -69,10 +68,10 @@ export const ImageCompression = () => {
                     <Stack direction={'column'} spacing={2}>
                         <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                         <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
-                        <TextField 
-                            label="Quality" 
-                            variant="outlined" 
-                            fullWidth 
+                        <TextField
+                            label="Quality"
+                            variant="outlined"
+                            fullWidth
                             type="number"
                             value={quality}
                             onChange={(e) => setQuality(e.target.value)}
@@ -88,17 +87,19 @@ export const ImageCompression = () => {
                         <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                         <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
                             {imageResult !== null && (
-                                <img
-                                    src={imageResult}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    alt="File Content"
-                                />
+                                <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                    <img
+                                        src={imageResult}
+                                        style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                        alt="File Content"
+                                    />
+                                </Stack>
                             )}
                             {uploadStarting ? (
                                 <Skeleton variant="rectangular" width={410} height={200} />
                             ) : (
                                 imageResult == null && (
-                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <img src={NoResultImg} style={{ width: '200px', height: '200px', objectFit: 'cover' }} alt="No Result" />
                                     </div>
                                 )

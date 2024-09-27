@@ -24,7 +24,7 @@ export const ObjectsDetection = () => {
     const fileService = new FileService();
 
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [model, setModel] = useState('yolov3');
+    const [model, setModel] = useState('yolov5');
     const [uploadStarting, setUploadStarting] = useState(false);
     const [imageResult, setImageResult] = useState(null);
     const [countingResult, setCountingResult] = useState(null);
@@ -91,7 +91,7 @@ export const ObjectsDetection = () => {
                             label="Model"
                             onChange={(e) => setModel(e.target.value)}
                         >
-                            {['yolov3', 'yolov5', 'yolov7', 'yolov8', 'yolov10'].map((modelName) => (
+                            {['yolov5', 'yolov8', 'yolov10'].map((modelName) => (
                                 <MenuItem key={modelName} value={modelName}>{modelName}</MenuItem>
                             ))}
                         </Select>

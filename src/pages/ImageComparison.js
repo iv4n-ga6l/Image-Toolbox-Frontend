@@ -59,8 +59,6 @@ export const ImageComparison = () => {
             try {
                 const result = await fileService.uploadFileForImageComparison(selectedFiles1[0], selectedFiles2[0]);
                 setUploadStarting(false);
-                setSelectedFiles1([]);
-                setSelectedFiles2([]);
                 setComparisonResult(result.similarity_score);
             } catch (error) {
                 showAlert(error.message || "An unexpected error occurred.");

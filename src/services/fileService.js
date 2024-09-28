@@ -1,12 +1,19 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000";
+const env = "PROD"
+let BASE_URL = "http://localhost:5000";
+
+if(env == "DEV"){
+    BASE_URL = "http://localhost:5000";
+} else {
+    BASE_URL = "https://image-toolbox-backend.onrender.com";
+}
 
 class FileService {
     constructor() {
         this.axios = axios.create({
             baseURL: BASE_URL,
-            timeout: 30000, // 30 seconds timeout
+            // timeout: 30000, // 30 seconds timeout
         });
     }
 
@@ -35,6 +42,9 @@ class FileService {
     }
 
     async uploadFileForObjectsDetection(file, model) {
+        console.log(`env : ${env}`)
+        console.log(`BASE_URL : ${BASE_URL}`)
+
         const formData = new FormData();
         formData.append("file", file);
 

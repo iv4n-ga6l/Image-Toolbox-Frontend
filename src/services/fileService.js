@@ -34,9 +34,6 @@ class FileService {
     }
 
     async uploadFileForObjectsDetection(file, model) {
-        console.log(`env : ${config.env}`);
-        console.log(`BASE_URL : ${config.baseURL}`);
-
         const formData = new FormData();
         formData.append("file", file);
 

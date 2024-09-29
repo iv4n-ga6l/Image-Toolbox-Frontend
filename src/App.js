@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import { TopBar } from './components/TopBar';
 import Footer from './components/Footer';
 import { ObjectsDetection } from './pages/ObjectsDetection';
+import { ObjectsSegmentation } from './pages/ObjectsSegmentation';
 import { ImageResizing } from './pages/ImageResizing';
 import { ImageFiltering } from './pages/ImageFiltering';
 import { TextExtract } from './pages/TextExtract';
@@ -58,6 +59,7 @@ function App() {
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/objects-detection' element={<ObjectsDetection />} />
+            <Route path='/objects-segmentation' element={<ObjectsSegmentation />} />
             <Route path='/image-resizing' element={<ImageResizing />} />
             <Route path='/image-filtering' element={<ImageFiltering />} />
             <Route path='/text-extract' element={<TextExtract />} />

@@ -7,77 +7,82 @@ import {
     Button,
     CircularProgress,
     Skeleton,
-    Alert,
-    Snackbar,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
     useTheme
 } from "@mui/material";
-import ContentPasteTwoToneIcon from '@mui/icons-material/ContentPasteTwoTone';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/FileDropZone";
 import FileService from "../services/fileService";
 import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
-export const TextExtract = () => {
+export const ObjectsSegmentation = () => {
     const theme = useTheme();
     // use of useMemo to ensure fileService is only created once
     const fileService = useMemo(() => new FileService(), []);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [model, setModel] = useState('yolov8_seg');
     const [uploadStarting, setUploadStarting] = useState(false);
-    const [textResult, setTextResult] = useState(null);
+    const [imageResult, setImageResult] = useState(null);
     const [error, setError] = useState(null);
-    const [showSnackbar, setShowSnackbar] = useState(false);
 
     const handleFilesSelected = useCallback((files) => {
         setSelectedFiles(files);
+        setError(null); // Clear any previous errors when new files are selected
+    }, []);
+
+    const handleClose = useCallback(() => {
         setError(null);
     }, []);
 
     const handleUpload = useCallback(async () => {
         if (selectedFiles.length === 0) {
-            setError('Please select an image to extract text from.');
+            setError('Please select an image to upload.');
             return;
         }
 
-        setTextResult(null);
+        setImageResult(null);
         setUploadStarting(true);
         setError(null);
 
         try {
-            const result = await fileService.uploadFileForTextExtract(selectedFiles[0]);
-            setTextResult(result.text);
+            const imageResult = await fileService.uploadFileForObjectsSegmentation(selectedFiles[0], model);
+
+            setImageResult(imageResult);
         } catch (error) {
-            setError(error.message || 'An error occurred during text extraction. Please try again.');
+            setError(error.message || 'An error occurred during object detection. Please try again.');
         } finally {
             setUploadStarting(false);
         }
-    }, [selectedFiles, fileService]);
-
-    const copyToClipboard = useCallback(() => {
-        if (!textResult) return;
-
-        navigator.clipboard.writeText(textResult)
-            .then(() => setShowSnackbar(true))
-            .catch((err) => setError('Failed to copy text: ' + err.message));
-    }, [textResult]);
-
-    const handleCloseError = useCallback(() => {
-        setError(null);
-    }, []);
-
-    const handleCloseSnackbar = useCallback(() => {
-        setShowSnackbar(false);
-    }, []);
+    }, [selectedFiles, model, fileService]);
 
     return (
         <Grid container sx={{ marginBottom: 30, mx: 4, marginTop: 4 }} spacing={6}>
-            <Grid item xs={10} md={4} lg={4}>
+            <Grid item xs={12} md={4} lg={4}>
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontSize={18} fontWeight={'bold'}>Upload the image to process</Typography>
                     <FileDropZone allowMultiple={false} onFilesSelected={handleFilesSelected} />
-                    <Button 
-                        variant="contained" 
-                        onClick={handleUpload} 
+                    <FormControl fullWidth>
+                        <InputLabel id="model-select-label">Model</InputLabel>
+                        <Select
+                            labelId="model-select-label"
+                            id="model-select"
+                            value={model}
+                            label="Model"
+                            onChange={(e) => setModel(e.target.value)}
+                        >
+                            {['yolov8_seg'].map((modelName) => (
+                                <MenuItem key={modelName} value={modelName}>{modelName}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Button
+                        variant="contained"
+                        onClick={handleUpload}
                         disabled={uploadStarting || selectedFiles.length === 0}
                     >
                         {uploadStarting ? (
@@ -89,12 +94,20 @@ export const TextExtract = () => {
                     </Button>
                 </Stack>
             </Grid>
-            <Grid item xs={10} md={5} lg={5}>
+            <Grid item xs={12} md={6} lg={6}>
                 <Stack direction={'column'} spacing={2}>
                     <Typography fontWeight={'bold'} letterSpacing={2}>Result</Typography>
                     <Box sx={{ padding: 4, border: `2px solid ${theme.palette.primary.dark}` }}>
-                        {textResult ? (
-                            <Typography>{textResult}</Typography>
+                        {imageResult ? (
+                            <>
+                                <Stack direction={'column'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                                    <img
+                                        src={imageResult}
+                                        style={{ width: '50%', height: '50%', objectFit: 'cover' }}
+                                        alt="Processed Image"
+                                    />
+                                </Stack>
+                            </>
                         ) : uploadStarting ? (
                             <Skeleton variant="rectangular" width="100%" height={200} />
                         ) : (
@@ -103,23 +116,15 @@ export const TextExtract = () => {
                             </Box>
                         )}
                     </Box>
-                    {textResult && (
-                        <Button size="small" onClick={copyToClipboard}>
-                            <ContentPasteTwoToneIcon sx={{ marginRight: 1 }} />
-                            Copy
+                    {imageResult && (
+                        <Button size="small" download href={imageResult}>
+                            <DownloadForOfflineIcon sx={{ marginRight: 1 }} />
+                            Download
                         </Button>
                     )}
+                    {error && <AlertDialog open={!!error} handleClose={handleClose} desc={error} />}
                 </Stack>
             </Grid>
-            <AlertDialog open={!!error} handleClose={handleCloseError} desc={error || ''} />
-            <Snackbar 
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                open={showSnackbar}
-                onClose={handleCloseSnackbar}
-                autoHideDuration={2000}
-            >
-                <Alert severity="info">The text has been copied to the clipboard.</Alert>
-            </Snackbar>
         </Grid>
     );
 };

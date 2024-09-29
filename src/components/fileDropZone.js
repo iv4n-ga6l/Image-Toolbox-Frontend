@@ -107,7 +107,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
                 }
             }
         >
-            <Typography variant="h6" fontSize={13}>Drop the image file here</Typography>
+            <Typography variant="h6" fontSize={13} fontWeight={'bold'} color={theme.palette.primary.main}>Drop the image file here</Typography>
             <input
                 type="file"
                 // accept="image/*"

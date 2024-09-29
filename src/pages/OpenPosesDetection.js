@@ -12,7 +12,7 @@ import {
 
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/FileDropZone";
-import FileService from "../services/FileService";
+import FileService from "../services/fileService";
 import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 

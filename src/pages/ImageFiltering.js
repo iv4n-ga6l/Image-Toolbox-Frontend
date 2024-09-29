@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
     Stack,
     Grid,
@@ -15,13 +15,14 @@ import {
 } from "@mui/material";
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import FileDropZone from "../components/FileDropZone";
-import FileService from "../services/FileService";
+import FileService from "../services/fileService";
 import NoResultImg from '../assets/no-result.png';
 import AlertDialog from "../components/AlertDialog";
 
 export const ImageFiltering = () => {
     const theme = useTheme();
-    const fileService = new FileService();
+    // use of useMemo to ensure fileService is only created once
+    const fileService = useMemo(() => new FileService(), []);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filter, setFilter] = useState('blur');

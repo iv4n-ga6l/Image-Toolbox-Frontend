@@ -46,6 +46,19 @@ class FileService {
         return URL.createObjectURL(blob);
     }
 
+    async uploadFileForObjectsSegmentation(file, model) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const path = `/segment_objects?model=${model}`;
+        
+        const blob = await this.makeRequest('post', path, formData, {
+            responseType: 'blob'
+        });
+
+        return URL.createObjectURL(blob);
+    }
+
     async uploadFileForResizing(file, width, height) {
         const formData = new FormData();
         formData.append("file", file);

@@ -19,6 +19,8 @@ import ModelTrainingTwoToneIcon from '@mui/icons-material/ModelTrainingTwoTone';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import GraphicEqTwoToneIcon from '@mui/icons-material/GraphicEqTwoTone';
+import SegmentIcon from '@mui/icons-material/Segment';
+import BentoIcon from '@mui/icons-material/Bento';
 import AspectRatioTwoToneIcon from '@mui/icons-material/AspectRatioTwoTone';
 import FilterBAndWTwoToneIcon from '@mui/icons-material/FilterBAndWTwoTone';
 import FormatStrikethroughTwoToneIcon from '@mui/icons-material/FormatStrikethroughTwoTone';
@@ -46,6 +48,7 @@ export const TopBar = ({ toggleTheme, mode, drawerOpen, handleDrawerToggle }) =>
 
     const menuItems = [
         { text: 'Objects Detection', icon: <GraphicEqTwoToneIcon />, path: '/objects-detection' },
+        { text: 'Objects Segmentation', icon: <BentoIcon />, path: '/objects-segmentation' },
         { text: 'Resizing', icon: <AspectRatioTwoToneIcon />, path: '/image-resizing' },
         { text: 'Filtering', icon: <FilterBAndWTwoToneIcon />, path: '/image-filtering' },
         { text: 'Text Extract', icon: <FormatStrikethroughTwoToneIcon />, path: '/text-extract' },

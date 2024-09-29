@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
     Typography,
     SvgIcon,
@@ -10,11 +10,14 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import FootImg from '../assets/foot.png';
 
+import AlertDialog from './AlertDialog';
+
 const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
     const theme = useTheme()
 
     const [droppedFiles, setDroppedFiles] = useState([]);
     const fileInputRef = useRef(null);
+    const [error, setError] = useState(null);
 
     const handleDrop = (e) => {
         e.preventDefault();
@@ -32,7 +35,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
         });
 
         if (imageFiles.length === 0) {
-            alert('Please select a JPG, JPEG, or PNG image.');
+            setError('Please select a JPG, JPEG, or PNG image.');
             return;
         }
 
@@ -64,7 +67,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
         });
 
         if (imageFiles.length === 0) {
-            alert('Please select a JPG, JPEG, or PNG image.');
+            setError('Please select a JPG, JPEG, or PNG image.');
             return;
         }
 
@@ -87,6 +90,10 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
         return `${fileName.substring(0, fileName.length / 2)}...${fileExtension}`;
     };
 
+    const handleClose = useCallback(() => {
+        setError(null);
+    }, []);
+
     return (
         <div
             onDrop={handleDrop}
@@ -100,7 +107,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
                     border: '2px dotted #aaa',
                     borderRadius: 3,
                     backgroundImage: `url(${FootImg})`,
-                    height: '16vh',
+                    // height: '16vh',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat'
                     // cursor: 'pointer',
@@ -129,7 +136,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
             <div style={
                 {
                     marginTop: 2,
-                    textAlign: 'left'
+                    textAlign: 'center'
                 }
             }
             >
@@ -139,6 +146,7 @@ const FileDropZone = ({ allowMultiple = true, onFilesSelected }) => {
                     </div>
                 ))}
             </div>
+            {error && <AlertDialog open={!!error} handleClose={handleClose} desc={error} />}
         </div>
     );
 };

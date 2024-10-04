@@ -92,7 +92,7 @@ export const ObjectsDetection = () => {
                             label="Model"
                             onChange={(e) => setModel(e.target.value)}
                         >
-                            {['yolov5', 'yolov8', 'yolov10'].map((modelName) => (
+                            {['yolov5', 'yolov8', 'yolov10', 'yolov11'].map((modelName) => (
                                 <MenuItem key={modelName} value={modelName}>{modelName}</MenuItem>
                             ))}
                         </Select>

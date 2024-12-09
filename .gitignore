@@ -38,3 +38,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+food_wine.jpg
+horse.jpg
+model6.jpg
+img-text.png

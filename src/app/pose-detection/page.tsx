@@ -17,12 +17,20 @@ export default function PoseDetection() {
     const [confidenceThreshold, setConfidenceThreshold] = useState(0.5)
     const [isProcessing, setIsProcessing] = useState(false)
     const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const { toast } = useToast()
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file)
+        setProcessedImageUrl(null)
+    }
+
+    const handleProcess = async () => {
+        if (!selectedFile) return
+
         try {
             setIsProcessing(true)
-            const result = await imageProcessingService.uploadFileForOpenPosesDetection(file, showSkeleton, showJointConfidence, confidenceThreshold)
+            const result = await imageProcessingService.uploadFileForOpenPosesDetection(selectedFile, showSkeleton, showJointConfidence, confidenceThreshold)
             setProcessedImageUrl(result)
         } catch (error: any) {
             toast({
@@ -94,6 +102,16 @@ export default function PoseDetection() {
                             </div>
 
                             <FileDropZone onFileSelect={handleFileSelect} />
+
+                            {selectedFile && !processedImageUrl && (
+                                <Button 
+                                    onClick={handleProcess} 
+                                    disabled={isProcessing}
+                                    className="w-full"
+                                >
+                                    {isProcessing ? "Processing..." : "Detect Poses"}
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
 

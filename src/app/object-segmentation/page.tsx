@@ -32,12 +32,20 @@ export default function ObjectSegmentation() {
     const [maskColor, setMaskColor] = useState('#FF0000')
     const [isProcessing, setIsProcessing] = useState(false)
     const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const { toast } = useToast()
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file)
+        setProcessedImageUrl(null)
+    }
+
+    const handleProcess = async () => {
+        if (!selectedFile) return
+
         try {
             setIsProcessing(true)
-            const result = await imageProcessingService.uploadFileForObjectsSegmentation(file, selectedModel)
+            const result = await imageProcessingService.uploadFileForObjectsSegmentation(selectedFile, selectedModel)
             setProcessedImageUrl(result)
         } catch (error: any) {
             toast({
@@ -130,6 +138,16 @@ export default function ObjectSegmentation() {
                             </div>
 
                             <FileDropZone onFileSelect={handleFileSelect} />
+
+                            {selectedFile && !processedImageUrl && (
+                                <Button 
+                                    onClick={handleProcess} 
+                                    disabled={isProcessing}
+                                    className="w-full"
+                                >
+                                    {isProcessing ? "Processing..." : "Segment Objects"}
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
 

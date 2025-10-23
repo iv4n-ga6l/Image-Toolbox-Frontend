@@ -29,9 +29,17 @@ export default function ImageFiltering() {
     const [selectedFilter, setSelectedFilter] = useState<string>('')
     const [isProcessing, setIsProcessing] = useState(false)
     const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const { toast } = useToast()
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file)
+        setProcessedImageUrl(null)
+    }
+
+    const handleProcess = async () => {
+        if (!selectedFile) return
+
         if (!selectedFilter) {
             toast({
                 title: "Error",
@@ -43,7 +51,7 @@ export default function ImageFiltering() {
 
         try {
             setIsProcessing(true)
-            const result = await imageProcessingService.uploadFileForFiltering(file, selectedFilter)
+            const result = await imageProcessingService.uploadFileForFiltering(selectedFile, selectedFilter)
             setProcessedImageUrl(result)
         } catch (error: any) {
             toast({
@@ -97,6 +105,20 @@ export default function ImageFiltering() {
                                 </SelectContent>
                             </Select>
                             <FileDropZone onFileSelect={handleFileSelect} />
+                            {selectedFile && !processedImageUrl && (
+                                <div className="mt-4 text-sm text-muted-foreground">
+                                    File selected: {selectedFile.name}
+                                </div>
+                            )}
+                            {selectedFile && !processedImageUrl && (
+                                <Button 
+                                    onClick={handleProcess} 
+                                    disabled={isProcessing || !selectedFilter}
+                                    className="w-full"
+                                >
+                                    {isProcessing ? "Processing..." : "Apply Filter"}
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
 

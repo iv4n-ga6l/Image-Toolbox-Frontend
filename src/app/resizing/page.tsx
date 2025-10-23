@@ -24,9 +24,10 @@ export default function ImageResizing() {
     const [originalAspectRatio, setOriginalAspectRatio] = useState<number | null>(null)
     const [isProcessing, setIsProcessing] = useState(false)
     const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const { toast } = useToast()
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File) => {
         const img = new Image()
         img.onload = () => {
             const ratio = img.width / img.height
@@ -35,10 +36,16 @@ export default function ImageResizing() {
             setHeight(img.height)
         }
         img.src = URL.createObjectURL(file)
+        setSelectedFile(file)
+        setProcessedImageUrl(null)
+    }
+
+    const handleProcess = async () => {
+        if (!selectedFile) return
 
         try {
             setIsProcessing(true)
-            const result = await imageProcessingService.uploadFileForResizing(file, width, height, aspectLocked)
+            const result = await imageProcessingService.uploadFileForResizing(selectedFile, width, height, aspectLocked)
             setProcessedImageUrl(result)
         } catch (error: any) {
             toast({
@@ -157,6 +164,16 @@ export default function ImageResizing() {
                                     ))}
                                 </div>
                             </div>
+
+                            {selectedFile && !processedImageUrl && (
+                                <Button 
+                                    onClick={handleProcess} 
+                                    disabled={isProcessing}
+                                    className="w-full"
+                                >
+                                    {isProcessing ? "Processing..." : "Resize Image"}
+                                </Button>
+                            )}
 
                             {processedImageUrl && (
                                 <div className="space-y-4">

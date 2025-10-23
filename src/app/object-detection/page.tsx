@@ -33,14 +33,23 @@ export default function ObjectDetection() {
     const [isProcessing, setIsProcessing] = useState(false)
     const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null)
     const [objectCounts, setObjectCounts] = useState<ObjectCount[]>([])
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const { toast } = useToast()
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file)
+        setProcessedImageUrl(null)
+        setObjectCounts([])
+    }
+
+    const handleProcess = async () => {
+        if (!selectedFile) return
+
         try {
             setIsProcessing(true)
             const [detectionResult, countResult] = await Promise.all([
-                imageProcessingService.uploadFileForObjectsDetection(file, selectedModel, confidenceThreshold),
-                imageProcessingService.uploadFileForObjectsCounting(file, selectedModel)
+                imageProcessingService.uploadFileForObjectsDetection(selectedFile, selectedModel, confidenceThreshold),
+                imageProcessingService.uploadFileForObjectsCounting(selectedFile, selectedModel)
             ])
             setProcessedImageUrl(detectionResult)
             
@@ -123,6 +132,16 @@ export default function ObjectDetection() {
                             </div>
 
                             <FileDropZone onFileSelect={handleFileSelect} />
+
+                            {selectedFile && !processedImageUrl && (
+                                <Button 
+                                    onClick={handleProcess} 
+                                    disabled={isProcessing}
+                                    className="w-full"
+                                >
+                                    {isProcessing ? "Processing..." : "Detect Objects"}
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
 

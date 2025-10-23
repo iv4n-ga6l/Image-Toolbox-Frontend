@@ -34,12 +34,20 @@ export default function TextExtract() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('eng')
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedText, setExtractedText] = useState<string>('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const { toast } = useToast()
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file)
+    setExtractedText('')
+  }
+
+  const handleProcess = async () => {
+    if (!selectedFile) return
+
     try {
       setIsProcessing(true)
-      const result = await imageProcessingService.uploadFileForTextExtract(file)
+      const result = await imageProcessingService.uploadFileForTextExtract(selectedFile)
       setExtractedText(result.text)
     } catch (error: any) {
       toast({
@@ -97,6 +105,16 @@ export default function TextExtract() {
               </div>
 
               <FileDropZone onFileSelect={handleFileSelect} />
+
+              {selectedFile && !extractedText && (
+                <Button 
+                  onClick={handleProcess} 
+                  disabled={isProcessing}
+                  className="w-full"
+                >
+                  {isProcessing ? "Processing..." : "Extract Text"}
+                </Button>
+              )}
             </CardContent>
           </Card>
 
